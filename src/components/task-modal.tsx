@@ -16,8 +16,8 @@ interface Task {
   description: string
   priority: "Low" | "Medium" | "High"
   dueDate: string
-  assignee: string // Add this if missing
-  status: "done" | "todo" | "in-progress" // Ensure the status field matches exactly
+  assignee: string 
+  status: "done" | "todo" | "in-progress" 
 }
 
 interface TaskModalProps {

@@ -13,11 +13,11 @@ interface CreateTaskDialogProps {
   onCreateTask: (task: Task) => void
 }
 
-interface Task {
+type Task = {
   id: string
   title: string
   description: string
-  status: "todo" | "inProgress" | "done"
+  status: "done" | "todo" | "in-progress"  
   priority: "Low" | "Medium" | "High"
   dueDate: string
   assignee: string
@@ -96,6 +96,19 @@ export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTas
                 onChange={(e) => handleChange("dueDate", e.target.value)}
               />
             </div>
+          </div>
+          <div className="grid gap-2">
+            <Label htmlFor="status">Status</Label>
+            <Select value={task.status} onValueChange={(value) => handleChange("status", value)}>
+              <SelectTrigger id="status">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="todo">Todo</SelectItem>
+                <SelectItem value="inProgress">In Progress</SelectItem>
+                <SelectItem value="done">Done</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <Button onClick={handleSubmit}>Create Task</Button>
         </div>

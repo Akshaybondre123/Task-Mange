@@ -153,15 +153,17 @@ export function BoardContainer() {
   }
 
   const handleCreateTask = (task: Task) => {
+    if (!task) return;
     setColumns((prev) => ({
       ...prev,
       todo: {
         ...prev.todo,
-        items: [...prev.todo.items, { ...task, status: "todo" }], 
+        items: [...prev.todo.items, { ...task, status: "todo" }],
       },
     }))
     setIsCreateModalOpen(false)
   }
+  
 
   const getSortedAndFilteredTasks = (tasks: Task[]) => {
     const filteredTasks = filterPriority ? tasks.filter((task) => task.priority === filterPriority) : tasks
