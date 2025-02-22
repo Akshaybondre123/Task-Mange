@@ -235,12 +235,12 @@ export function BoardContainer() {
         </div>
       </DragDropContext>
 
-      <TaskModal
+      {/* <TaskModal
         task={selectedTask}
         open={!!selectedTask}
         onOpenChange={(open) => !open && setSelectedTask(null)}
         onUpdate={handleUpdateTask}
-      />
+      /> */}
 
       <CreateTaskDialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} onCreateTask={handleCreateTask} />
     </div>
