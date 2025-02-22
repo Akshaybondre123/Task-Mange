@@ -16,8 +16,16 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 
+interface Task {
+  id: string
+  title: string
+  priority: "Low" | "Medium" | "High"
+  dueDate: string
+  assignee: string
+}
+
 interface TaskCardProps {
-  task: any
+  task: Task
   index: number
   onClick: () => void
   onDelete: (id: string) => void
@@ -83,5 +91,5 @@ export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
         </div>
       )}
     </Draggable>
-)
+  )
 }

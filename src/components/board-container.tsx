@@ -1,6 +1,6 @@
 "use client"
 import { useEffect, useState } from "react"
-import { DragDropContext } from "@hello-pangea/dnd"
+import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Column } from "./column"
 import { TaskModal } from "./task-modal"
 import { Button } from "@/components/ui/button"
@@ -66,41 +66,31 @@ export function BoardContainer() {
       return data.todos
     },
   })
-useEffect(() => {
-
-
-    if (tasks && !columns.todo.items.length) {
+  useEffect(() => {
+    if (tasks && columns.todo.items.length === 0) {
       const formattedTasks = tasks.map((task: any) => ({
         id: `DS-${String(task.id).padStart(3, "0")}`,
         title: task.todo,
-
-
         description: "",
-
         status: "todo",
         priority: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
         dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
-
         assignee: "User",
-
-
-      }))
-
+      }));
+  
       setColumns((prev) => ({
-
-
         ...prev,
         todo: {
           ...prev.todo,
           items: formattedTasks,
         },
-      }))
-
-
+      }));
     }
-  }, [tasks, columns, columns.todo.items.length, setColumns])
+  }, [tasks, columns.todo.items.length, setColumns]);
+  
+//   }, [tasks, columns, columns.todo.items.length, setColumns])
 
-  const onDragEnd = (result: any) => {
+  const onDragEnd = (result: DropResult) => {
 
     if (!result.destination) return
   
