@@ -68,7 +68,7 @@ export function BoardContainer() {
   })
   useEffect(() => {
     if (tasks && columns.todo.items.length === 0) {
-      const formattedTasks = tasks.map((task: any) => ({
+      const formattedTasks = tasks.map((task) => ({
         id: `DS-${String(task.id).padStart(3, "0")}`,
         title: task.todo,
         description: "",
@@ -87,6 +87,7 @@ export function BoardContainer() {
       }));
     }
   }, [tasks, columns.todo.items.length, setColumns]);
+  
   
 //   }, [tasks, columns, columns.todo.items.length, setColumns])
 
