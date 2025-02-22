@@ -30,10 +30,8 @@ const priorityColors = {
 }
 
 export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
-  const taskId = task.id || `task-${index}`
-
   return (
-    <Draggable draggableId={taskId} index={index}>
+    <Draggable draggableId={task.id} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
@@ -43,7 +41,7 @@ export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
         >
           <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between">
-              <span className="text-sm text-muted-foreground">{taskId}</span>
+              <span className="text-sm text-muted-foreground">{task.id}</span>
               <Badge variant="secondary" className={cn("font-medium", priorityColors[task.priority])}>
                 {task.priority}
               </Badge>
@@ -52,12 +50,10 @@ export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
               {task.title}
             </h3>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-muted-foreground">
-                {task.dueDate ? new Date(task.dueDate).toLocaleDateString() : "No Due Date"}
-              </span>
+              <span className="text-sm text-muted-foreground">{new Date(task.dueDate).toLocaleDateString()}</span>
               <Avatar className="h-6 w-6">
                 <AvatarImage src="" />
-                <AvatarFallback className="text-xs">{task.assignee?.[0] || "?"}</AvatarFallback>
+                <AvatarFallback className="text-xs">{task.assignee[0]}</AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -80,12 +76,12 @@ export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
               </AlertDialogHeader>
               <AlertDialogFooter>
                 <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onDelete(taskId)}>Delete</AlertDialogAction>
+                <AlertDialogAction onClick={() => onDelete(task.id)}>Delete</AlertDialogAction>
               </AlertDialogFooter>
             </AlertDialogContent>
           </AlertDialog>
         </div>
       )}
     </Draggable>
-  )
+)
 }

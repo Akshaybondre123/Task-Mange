@@ -51,7 +51,6 @@ export function BoardContainer() {
   const [columns, setColumns] = useLocalStorage("kanban-columns", INITIAL_COLUMNS)
 
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
-  
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [sortBy, setSortBy] = useState<"priority" | "dueDate" | null>(null)
 
