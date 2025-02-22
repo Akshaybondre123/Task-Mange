@@ -66,15 +66,22 @@ export function BoardContainer() {
       return data.todos
     },
   })
+  type Task = {
+    id: number;
+    todo: string;
+  };
+  
   useEffect(() => {
     if (tasks && columns.todo.items.length === 0) {
-      const formattedTasks = tasks.map((task) => ({
+      const formattedTasks = tasks.map((task: Task) => ({
         id: `DS-${String(task.id).padStart(3, "0")}`,
         title: task.todo,
         description: "",
         status: "todo",
         priority: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
-        dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000)
+          .toISOString()
+          .split("T")[0],
         assignee: "User",
       }));
   
