@@ -120,25 +120,23 @@ export function BoardContainer() {
   }
 
   const handleUpdateTask = (updatedTask: Task) => {
-    
+    // Ensure the task is updated in the correct column
     setColumns((prev) => {
       const newColumns = { ...prev }
       
-      
+      // Iterate over columns to update the task
       Object.keys(newColumns).forEach((columnId) => {
         newColumns[columnId].items = newColumns[columnId].items.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task 
+          task.id === updatedTask.id ? updatedTask : task
         )
       })
-      
-      
+
       return newColumns
     })
-    
-    
+
+    // Update the selected task state with the updated task
     setSelectedTask(updatedTask)
   }
-  
 
   const handleDeleteTask = (taskId: string) => {
     setColumns((prev) => {
@@ -235,12 +233,12 @@ export function BoardContainer() {
         </div>
       </DragDropContext>
 
-      {/* <TaskModal
+      <TaskModal
         task={selectedTask}
         open={!!selectedTask}
         onOpenChange={(open) => !open && setSelectedTask(null)}
         onUpdate={handleUpdateTask}
-      /> */}
+      />
 
       <CreateTaskDialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} onCreateTask={handleCreateTask} />
     </div>

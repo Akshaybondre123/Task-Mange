@@ -16,6 +16,8 @@ interface Task {
   description: string
   priority: "Low" | "Medium" | "High"
   dueDate: string
+  assignee: string // Add this if missing
+  status: "done" | "todo" | "in-progress" // Ensure the status field matches exactly
 }
 
 interface TaskModalProps {
@@ -24,6 +26,9 @@ interface TaskModalProps {
   onOpenChange: (open: boolean) => void
   onUpdate: (task: Task) => void
 }
+
+
+
 
 export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps) {
   const [editorReady, setEditorReady] = useState(false)
@@ -36,7 +41,6 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
     },
   })
 
-  
   useEffect(() => {
     if (editor) {
       setEditorReady(true)
