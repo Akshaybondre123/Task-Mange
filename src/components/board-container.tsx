@@ -14,7 +14,7 @@ type Task = {
   id: string
   title: string
   description: string
-  status: string
+  status: "done" | "todo" | "in-progress" 
   priority: "Low" | "Medium" | "High"
   dueDate: string
   assignee: string
@@ -59,7 +59,7 @@ export function BoardContainer() {
         id: `DS-${String(task.id).padStart(3, "0")}`,
         title: task.todo,
         description: "",
-        status: "todo",
+        status: "todo", 
         priority: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
         dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000)
           .toISOString()
@@ -120,17 +120,25 @@ export function BoardContainer() {
   }
 
   const handleUpdateTask = (updatedTask: Task) => {
+    
     setColumns((prev) => {
       const newColumns = { ...prev }
+      
+      
       Object.keys(newColumns).forEach((columnId) => {
         newColumns[columnId].items = newColumns[columnId].items.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task
+          task.id === updatedTask.id ? updatedTask : task 
         )
       })
+      
+      
       return newColumns
     })
+    
+    
     setSelectedTask(updatedTask)
   }
+  
 
   const handleDeleteTask = (taskId: string) => {
     setColumns((prev) => {
@@ -151,7 +159,7 @@ export function BoardContainer() {
       ...prev,
       todo: {
         ...prev.todo,
-        items: [...prev.todo.items, task],
+        items: [...prev.todo.items, { ...task, status: "todo" }], 
       },
     }))
     setIsCreateModalOpen(false)

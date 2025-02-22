@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Bold, Italic, List } from "lucide-react"
+import { useEffect, useState } from "react"
 
 interface Task {
   id: string
@@ -18,13 +19,15 @@ interface Task {
 }
 
 interface TaskModalProps {
-  task: Task
+  task: Task | null
   open: boolean
   onOpenChange: (open: boolean) => void
   onUpdate: (task: Task) => void
 }
 
 export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps) {
+  const [editorReady, setEditorReady] = useState(false)
+
   const editor = useEditor({
     extensions: [StarterKit],
     content: task?.description || "",
@@ -33,20 +36,29 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
     },
   })
 
-  const handleChange = (field: string, value: string) => {
-    onUpdate({
-      ...task,
-      [field]: value,
-    })
-  }
+  
+  useEffect(() => {
+    if (editor) {
+      setEditorReady(true)
+    }
+  }, [editor])
 
   if (!task) return null
+
+  const handleChange = (field: string, value: string) => {
+    if (task) {
+      onUpdate({
+        ...task,
+        [field]: value,
+      })
+    }
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>{task.id}</DialogTitle>
+          <DialogTitle>Edit Task: {task.id}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
@@ -88,7 +100,9 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
                   <List className="h-4 w-4" />
                 </Button>
               </div>
-              <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-2" />
+              {editorReady && (
+                <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-2" />
+              )}
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
