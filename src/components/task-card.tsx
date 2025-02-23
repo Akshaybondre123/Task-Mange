@@ -20,13 +20,16 @@ export interface Task {
   id: string;
   title: string;
   status: "backlog" | "todo" | "inProgress" | "review" | "done";
-  priority: "Low" | "Medium" | "High"; // Fixed type case
+  priority: "Low" | "Medium" | "High"; 
   dueDate: string;
   assignee: string;
 }
 
 interface TaskCardProps {
+
+
   task: Task;
+
   index: number;
   onClick: () => void;
   onDelete: (id: string) => void;
@@ -34,35 +37,47 @@ interface TaskCardProps {
 }
 
 const priorityColors = {
+
+
   Low: "text-green-500 bg-green-500/10",
   Medium: "text-yellow-500 bg-yellow-500/10",
   High: "text-red-500 bg-red-500/10",
 };
 
 export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
+
   return (
     <Draggable draggableId={task.id} index={index}>
       {(provided) => (
         <div
           ref={provided.innerRef}
+
           {...provided.draggableProps}
           {...provided.dragHandleProps}
           className="group relative rounded-lg border bg-card p-3 shadow-sm hover:shadow-md transition-shadow"
+
         >
           <div className="flex flex-col gap-2">
             <div className="flex items-start justify-between">
+
               <span className="text-sm text-muted-foreground">{task.id}</span>
+
               <Badge variant="secondary" className={cn("font-medium", priorityColors[task.priority])}>
+
                 {task.priority}
               </Badge>
             </div>
+
             <h3 className="font-medium leading-none cursor-pointer" onClick={onClick}>
+
               {task.title}
             </h3>
             <div className="flex items-center justify-between">
               <span className="text-sm text-muted-foreground">{new Date(task.dueDate).toLocaleDateString()}</span>
+
               <Avatar className="h-6 w-6">
                 <AvatarImage src="" />
+                
                 <AvatarFallback className="text-xs">{task.assignee.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </div>

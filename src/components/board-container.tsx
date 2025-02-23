@@ -14,9 +14,13 @@ import { CreateTaskDialog } from "./create-task-dialog"
 interface Task {
   id: string
   title: string
+
+
   description: string
   status: "backlog" | "todo" | "inProgress" | "review" | "done"
   priority: "Low" | "Medium" | "High"
+
+
   dueDate: string
   assignee: string
 }
@@ -35,6 +39,8 @@ const INITIAL_COLUMNS: Columns = {
   backlog: { title: "Backlog", items: [], isDroppable: false },
   todo: { title: "Todo", items: [], isDroppable: true },
   inProgress: { title: "In Progress", items: [], isDroppable: true },
+
+
   review: { title: "Review", items: [], isDroppable: false },
   done: { title: "Done", items: [], isDroppable: true },
 }
@@ -46,6 +52,8 @@ export function BoardContainer() {
   const [columns, setColumns] = useLocalStorage("kanban-columns", INITIAL_COLUMNS)
   const [selectedTask, setSelectedTask] = useState<Task | null>(null)
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+
+
   const [sortBy, setSortBy] = useState<"priority" | "dueDate" | null>(null)
   const [filterPriority, setFilterPriority] = useState<string | null>(null)
 
@@ -63,8 +71,12 @@ export function BoardContainer() {
       const formattedTasks = tasks.map((task: { id: number; todo: string }) => ({
         id: `DS-${String(task.id).padStart(3, "0")}`,
         title: task.todo,
+
+
         description: "",
         status: "todo",
+
+
         priority: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
         dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
         assignee: ASSIGNEES[Math.floor(Math.random() * ASSIGNEES.length)],
@@ -76,10 +88,15 @@ formattedTasks.forEach((task: Task, index: number) => {
   let targetColumn: Task["status"];
   
   if (index < 3) targetColumn = "backlog";
+
+
   else if (index < 6) targetColumn = "todo";
+
   else if (index < 9) targetColumn = "inProgress";
+
   else if (index < 12) targetColumn = "review";
   else targetColumn = "done";
+
 
   task.status = targetColumn;
   distributedColumns[targetColumn].items.push(task);
@@ -100,18 +117,22 @@ setColumns(distributedColumns);
     }
 
     const sourceColumn = columns[source.droppableId]
+
     const destColumn = columns[destination.droppableId]
+
     const sourceItems = [...sourceColumn.items]
     const destItems = [...destColumn.items]
     const [removed] = sourceItems.splice(source.index, 1)
 
    
     const updatedTask = {
+
       ...removed,
       status: destination.droppableId as Task["status"],
     }
 
     if (source.droppableId === destination.droppableId) {
+
       sourceItems.splice(destination.index, 0, updatedTask)
       setColumns({
         ...columns,
@@ -120,7 +141,10 @@ setColumns(distributedColumns);
           items: sourceItems,
         },
       })
-    } else {
+    } 
+    
+    else {
+
       destItems.splice(destination.index, 0, updatedTask)
       setColumns({
         ...columns,
@@ -136,21 +160,33 @@ setColumns(distributedColumns);
     }
   }
 
-  const handleUpdateTask = (updatedTask: Task) => {
+  const handleUpdateTask = (updatedTask: Partial<Task> & { id: string }) => {
+
     setColumns((prev) => {
-      const newColumns = { ...prev }
+      const newColumns = { ...prev };
       Object.keys(newColumns).forEach((columnId) => {
+
+
+
         newColumns[columnId].items = newColumns[columnId].items.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task,
-        )
-      })
-      return newColumns
-    })
-    setSelectedTask(updatedTask)
-  }
+
+          task.id === updatedTask.id ? { ...task, ...updatedTask } : task
+        );
+      });
+
+      return newColumns;
+    });
+    setSelectedTask((prev) => (prev && prev.id === updatedTask.id ? { ...prev, ...updatedTask } : prev));
+
+  };
+  
+  
 
   const handleDeleteTask = (taskId: string) => {
+
+
     setColumns((prev) => {
+
       const newColumns = { ...prev }
       Object.keys(newColumns).forEach((columnId) => {
         newColumns[columnId].items = newColumns[columnId].items.filter((task) => task.id !== taskId)
@@ -201,8 +237,11 @@ setColumns(distributedColumns);
               <DropdownMenuItem onClick={() => setSortBy("priority")}>By Priority</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setSortBy("dueDate")}>By Due Date</DropdownMenuItem>
             </DropdownMenuContent>
+
           </DropdownMenu>
           <DropdownMenu>
+
+
             <DropdownMenuTrigger asChild>
               <Button variant="outline" size="sm">
                 <Filter className="h-4 w-4 mr-2" />
@@ -211,7 +250,9 @@ setColumns(distributedColumns);
             </DropdownMenuTrigger>
             <DropdownMenuContent>
               <DropdownMenuItem onClick={() => setFilterPriority("High")}>High Priority</DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => setFilterPriority("Medium")}>Medium Priority</DropdownMenuItem>
+
               <DropdownMenuItem onClick={() => setFilterPriority("Low")}>Low Priority</DropdownMenuItem>
               <DropdownMenuItem onClick={() => setFilterPriority(null)}>Clear Filter</DropdownMenuItem>
             </DropdownMenuContent>
@@ -225,24 +266,31 @@ setColumns(distributedColumns);
       <DragDropContext onDragEnd={onDragEnd}>
         <div className="grid grid-cols-5 gap-6">
           {Object.entries(columns).map(([columnId, column]) => (
-            <Column
-              key={columnId}
-              id={columnId}
-              title={column.title}
-              tasks={getSortedAndFilteredTasks(column.items)}
-              onTaskClick={setSelectedTask}
-              onDeleteTask={handleDeleteTask}
-              isDroppable={column.isDroppable}
-            />
+          <Column
+          key={columnId}
+          id={columnId}
+          title={column.title}
+          tasks={getSortedAndFilteredTasks(column.items)}
+          onTaskClick={(task) => setSelectedTask({ ...task, description: task.description || "No description available" })} 
+
+          onDeleteTask={handleDeleteTask}
+          isDroppable={column.isDroppable}
+        />
+        
+          
           ))}
         </div>
       </DragDropContext>
       <TaskModal
-        task={selectedTask}
-        open={!!selectedTask}
-        onOpenChange={(open) => !open && setSelectedTask(null)}
-        onUpdate={handleUpdateTask}
-      />
+  task={selectedTask}  
+  open={!!selectedTask}
+  onOpenChange={(open) => !open && setSelectedTask(null)}
+  onUpdate={(updatedTask) => handleUpdateTask(updatedTask)} 
+/>
+
+
+
+
       <CreateTaskDialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} onCreateTask={handleCreateTask} />
 </div>
 )
