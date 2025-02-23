@@ -120,11 +120,11 @@ export function BoardContainer() {
   }
 
   const handleUpdateTask = (updatedTask: Task) => {
-    // Ensure the task is updated in the correct column
+    
     setColumns((prev) => {
       const newColumns = { ...prev }
       
-      // Iterate over columns to update the task
+      
       Object.keys(newColumns).forEach((columnId) => {
         newColumns[columnId].items = newColumns[columnId].items.map((task) =>
           task.id === updatedTask.id ? updatedTask : task
@@ -134,7 +134,7 @@ export function BoardContainer() {
       return newColumns
     })
 
-    // Update the selected task state with the updated task
+    
     setSelectedTask(updatedTask)
   }
 
