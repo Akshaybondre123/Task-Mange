@@ -1,9 +1,9 @@
-import { Draggable } from "@hello-pangea/dnd"
-import { Badge } from "@/components/ui/badge"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Button } from "@/components/ui/button"
-import { Trash2 } from "lucide-react"
-import { cn } from "@/lib/utils"
+import { Draggable } from "@hello-pangea/dnd";
+import { Badge } from "@/components/ui/badge";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { Trash2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,28 +14,30 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "@/components/ui/alert-dialog"
+} from "@/components/ui/alert-dialog";
 
-interface Task {
-  id: string
-  title: string
-  priority: "Low" | "Medium" | "High"
-  dueDate: string
-  assignee: string
+export interface Task {
+  id: string;
+  title: string;
+  status: "backlog" | "todo" | "inProgress" | "review" | "done";
+  priority: "Low" | "Medium" | "High"; // Fixed type case
+  dueDate: string;
+  assignee: string;
 }
 
 interface TaskCardProps {
-  task: Task
-  index: number
-  onClick: () => void
-  onDelete: (id: string) => void
+  task: Task;
+  index: number;
+  onClick: () => void;
+  onDelete: (id: string) => void;
+  isDraggable: boolean;
 }
 
 const priorityColors = {
   Low: "text-green-500 bg-green-500/10",
   Medium: "text-yellow-500 bg-yellow-500/10",
   High: "text-red-500 bg-red-500/10",
-}
+};
 
 export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
   return (
@@ -61,7 +63,7 @@ export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
               <span className="text-sm text-muted-foreground">{new Date(task.dueDate).toLocaleDateString()}</span>
               <Avatar className="h-6 w-6">
                 <AvatarImage src="" />
-                <AvatarFallback className="text-xs">{task.assignee[0]}</AvatarFallback>
+                <AvatarFallback className="text-xs">{task.assignee.charAt(0).toUpperCase()}</AvatarFallback>
               </Avatar>
             </div>
           </div>
@@ -91,5 +93,5 @@ export function TaskCard({ task, index, onClick, onDelete }: TaskCardProps) {
         </div>
       )}
     </Draggable>
-  )
+  );
 }

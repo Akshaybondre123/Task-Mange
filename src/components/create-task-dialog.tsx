@@ -10,22 +10,11 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 interface CreateTaskDialogProps {
   open: boolean
   onOpenChange: (open: boolean) => void
-  onCreateTask: (task: Task) => void
-}
-
-type Task = {
-  id: string
-  title: string
-  description: string
-  status: "done" | "todo" | "in-progress"  
-  priority: "Low" | "Medium" | "High"
-  dueDate: string
-  assignee: string
+  onCreateTask: (task: any) => void
 }
 
 export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTaskDialogProps) {
-
-  const [task, setTask] = useState<Task>({
+  const [task, setTask] = useState({
     id: `DS-${String(Math.floor(Math.random() * 1000)).padStart(3, "0")}`,
     title: "",
     description: "",
@@ -35,7 +24,7 @@ export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTas
     assignee: "User",
   })
 
-  const handleChange = (field: keyof Task, value: string | "Low" | "Medium" | "High") => {
+  const handleChange = (field: string, value: any) => {
     setTask((prev) => ({
       ...prev,
       [field]: value,
@@ -97,22 +86,9 @@ export function CreateTaskDialog({ open, onOpenChange, onCreateTask }: CreateTas
               />
             </div>
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="status">Status</Label>
-            <Select value={task.status} onValueChange={(value) => handleChange("status", value)}>
-              <SelectTrigger id="status">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="todo">Todo</SelectItem>
-                <SelectItem value="inProgress">In Progress</SelectItem>
-                <SelectItem value="done">Done</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
           <Button onClick={handleSubmit}>Create Task</Button>
         </div>
       </DialogContent>
-    </Dialog>
-  )
+   </Dialog>
+)
 }

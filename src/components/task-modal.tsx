@@ -8,31 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { useEditor, EditorContent } from "@tiptap/react"
 import StarterKit from "@tiptap/starter-kit"
 import { Bold, Italic, List } from "lucide-react"
-import { useEffect, useState } from "react"
-
-interface Task {
-  id: string
-  title: string
-  description: string
-  priority: "Low" | "Medium" | "High"
-  dueDate: string
-  assignee: string 
-  status: "done" | "todo" | "in-progress" 
-}
 
 interface TaskModalProps {
-  task: Task | null
+  task: any
   open: boolean
   onOpenChange: (open: boolean) => void
-  onUpdate: (task: Task) => void
+  onUpdate: (task: any) => void
 }
 
-
-
-
 export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps) {
-  const [editorReady, setEditorReady] = useState(false)
-
   const editor = useEditor({
     extensions: [StarterKit],
     content: task?.description || "",
@@ -41,37 +25,25 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
     },
   })
 
-  useEffect(() => {
-    if (editor) {
-      setEditorReady(true)
-    }
-  }, [editor])
+  const handleChange = (field: string, value: any) => {
+    onUpdate({
+      ...task,
+      [field]: value,
+    })
+  }
 
   if (!task) return null
-
-  const handleChange = (field: string, value: string) => {
-    if (task) {
-      onUpdate({
-        ...task,
-        [field]: value,
-      })
-    }
-  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl">
         <DialogHeader>
-          <DialogTitle>Edit Task: {task.id}</DialogTitle>
+          <DialogTitle>{task.id}</DialogTitle>
         </DialogHeader>
         <div className="grid gap-4 py-4">
           <div className="grid gap-2">
             <Label htmlFor="title">Title</Label>
-            <Input
-              id="title"
-              value={task.title}
-              onChange={(e) => handleChange("title", e.target.value)}
-            />
+            <Input id="title" value={task.title} onChange={(e) => handleChange("title", e.target.value)} />
           </div>
           <div className="grid gap-2">
             <Label>Description</Label>
@@ -85,7 +57,6 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
                 >
                   <Bold className="h-4 w-4" />
                 </Button>
-
                 <Button
                   variant="ghost"
                   size="sm"
@@ -94,7 +65,6 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
                 >
                   <Italic className="h-4 w-4" />
                 </Button>
-
                 <Button
                   variant="ghost"
                   size="sm"
@@ -104,9 +74,7 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
                   <List className="h-4 w-4" />
                 </Button>
               </div>
-              {editorReady && (
-                <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-2" />
-              )}
+              <EditorContent editor={editor} className="prose prose-sm dark:prose-invert max-w-none p-2" />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-4">
@@ -135,6 +103,6 @@ export function TaskModal({ task, open, onOpenChange, onUpdate }: TaskModalProps
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  )
+  </Dialog>
+)
 }

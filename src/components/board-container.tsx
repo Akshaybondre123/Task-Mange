@@ -1,4 +1,5 @@
 "use client"
+
 import { useEffect, useState } from "react"
 import { DragDropContext, DropResult } from "@hello-pangea/dnd"
 import { Column } from "./column"
@@ -10,11 +11,11 @@ import { useLocalStorage } from "@/lib/hooks/use-local-storage"
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { CreateTaskDialog } from "./create-task-dialog"
 
-type Task = {
+interface Task {
   id: string
   title: string
   description: string
-  status: "done" | "todo" | "in-progress" 
+  status: "backlog" | "todo" | "inProgress" | "review" | "done"
   priority: "Low" | "Medium" | "High"
   dueDate: string
   assignee: string
@@ -23,6 +24,7 @@ type Task = {
 type ColumnType = {
   title: string
   items: Task[]
+  isDroppable: boolean
 }
 
 type Columns = {
@@ -30,12 +32,15 @@ type Columns = {
 }
 
 const INITIAL_COLUMNS: Columns = {
-  backlog: { title: "Backlog", items: [] },
-  todo: { title: "Todo", items: [] },
-  inProgress: { title: "In Progress", items: [] },
-  review: { title: "Review", items: [] },
-  done: { title: "Done", items: [] },
+  backlog: { title: "Backlog", items: [], isDroppable: false },
+  todo: { title: "Todo", items: [], isDroppable: true },
+  inProgress: { title: "In Progress", items: [], isDroppable: true },
+  review: { title: "Review", items: [], isDroppable: false },
+  done: { title: "Done", items: [], isDroppable: true },
 }
+
+
+const ASSIGNEES = ["Ann", "Leslie", "Shane", "Victoria", "Philip", "Darren"]
 
 export function BoardContainer() {
   const [columns, setColumns] = useLocalStorage("kanban-columns", INITIAL_COLUMNS)
@@ -47,55 +52,67 @@ export function BoardContainer() {
   const { data: tasks } = useQuery({
     queryKey: ["tasks"],
     queryFn: async () => {
-      const res = await fetch("https://dummyjson.com/todos?limit=10")
+      const res = await fetch("https://dummyjson.com/todos?limit=15")
       const data = await res.json()
       return data.todos
     },
   })
 
   useEffect(() => {
-    if (tasks && columns.todo.items.length === 0) {
+    if (tasks && Object.values(columns).every((col) => col.items.length === 0)) {
       const formattedTasks = tasks.map((task: { id: number; todo: string }) => ({
         id: `DS-${String(task.id).padStart(3, "0")}`,
         title: task.todo,
         description: "",
-        status: "todo", 
+        status: "todo",
         priority: ["Low", "Medium", "High"][Math.floor(Math.random() * 3)],
-        dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000)
-          .toISOString()
-          .split("T")[0],
-        assignee: "User",
+        dueDate: new Date(Date.now() + Math.random() * 10 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+        assignee: ASSIGNEES[Math.floor(Math.random() * ASSIGNEES.length)],
       }))
 
-      setColumns((prev) => ({
-        ...prev,
-        todo: {
-          ...prev.todo,
-          items: formattedTasks,
-        },
-      }))
+      
+      const distributedColumns = { ...INITIAL_COLUMNS }
+formattedTasks.forEach((task: Task, index: number) => {
+  let targetColumn: Task["status"];
+  
+  if (index < 3) targetColumn = "backlog";
+  else if (index < 6) targetColumn = "todo";
+  else if (index < 9) targetColumn = "inProgress";
+  else if (index < 12) targetColumn = "review";
+  else targetColumn = "done";
+
+  task.status = targetColumn;
+  distributedColumns[targetColumn].items.push(task);
+});
+
+setColumns(distributedColumns);
     }
-  }, [tasks, columns.todo.items.length, setColumns])
+  }, [tasks, setColumns, columns])
 
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return
 
     const { source, destination } = result
-    const allowedColumns = ["todo", "inProgress", "done"]
-    if (!allowedColumns.includes(source.droppableId) || !allowedColumns.includes(destination.droppableId)) {
+
+   
+    if (!columns[source.droppableId].isDroppable || !columns[destination.droppableId].isDroppable) {
       return
     }
 
     const sourceColumn = columns[source.droppableId]
     const destColumn = columns[destination.droppableId]
-
     const sourceItems = [...sourceColumn.items]
     const destItems = [...destColumn.items]
-
     const [removed] = sourceItems.splice(source.index, 1)
 
+   
+    const updatedTask = {
+      ...removed,
+      status: destination.droppableId as Task["status"],
+    }
+
     if (source.droppableId === destination.droppableId) {
-      sourceItems.splice(destination.index, 0, removed)
+      sourceItems.splice(destination.index, 0, updatedTask)
       setColumns({
         ...columns,
         [source.droppableId]: {
@@ -104,7 +121,7 @@ export function BoardContainer() {
         },
       })
     } else {
-      destItems.splice(destination.index, 0, removed)
+      destItems.splice(destination.index, 0, updatedTask)
       setColumns({
         ...columns,
         [source.droppableId]: {
@@ -120,40 +137,29 @@ export function BoardContainer() {
   }
 
   const handleUpdateTask = (updatedTask: Task) => {
-    
     setColumns((prev) => {
       const newColumns = { ...prev }
-      
-      
       Object.keys(newColumns).forEach((columnId) => {
         newColumns[columnId].items = newColumns[columnId].items.map((task) =>
-          task.id === updatedTask.id ? updatedTask : task
+          task.id === updatedTask.id ? updatedTask : task,
         )
       })
-
       return newColumns
     })
-
-    
     setSelectedTask(updatedTask)
   }
 
   const handleDeleteTask = (taskId: string) => {
     setColumns((prev) => {
-      const newColumns = Object.keys(prev).reduce((acc, columnId) => {
-        acc[columnId] = {
-          ...prev[columnId],
-          items: prev[columnId].items.filter((task) => task.id !== taskId),
-        }
-        return acc
-      }, {} as Columns)
-
-      return { ...newColumns }
+      const newColumns = { ...prev }
+      Object.keys(newColumns).forEach((columnId) => {
+        newColumns[columnId].items = newColumns[columnId].items.filter((task) => task.id !== taskId)
+      })
+      return newColumns
     })
   }
 
   const handleCreateTask = (task: Task) => {
-    if (!task) return;
     setColumns((prev) => ({
       ...prev,
       todo: {
@@ -163,8 +169,6 @@ export function BoardContainer() {
     }))
     setIsCreateModalOpen(false)
   }
-  
-
   const getSortedAndFilteredTasks = (tasks: Task[]) => {
     const filteredTasks = filterPriority ? tasks.filter((task) => task.priority === filterPriority) : tasks
 
@@ -213,15 +217,13 @@ export function BoardContainer() {
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
-
-        <Button onClick={() => setIsCreateModalOpen(true)}>
+        <Button className="bg-emerald-500 hover:bg-emerald-600" onClick={() => setIsCreateModalOpen(true)}>
           <Plus className="h-4 w-4 mr-2" />
           Add Task
         </Button>
       </div>
-
       <DragDropContext onDragEnd={onDragEnd}>
-        <div className="grid grid-cols-5 gap-4">
+        <div className="grid grid-cols-5 gap-6">
           {Object.entries(columns).map(([columnId, column]) => (
             <Column
               key={columnId}
@@ -230,19 +232,18 @@ export function BoardContainer() {
               tasks={getSortedAndFilteredTasks(column.items)}
               onTaskClick={setSelectedTask}
               onDeleteTask={handleDeleteTask}
+              isDroppable={column.isDroppable}
             />
           ))}
         </div>
       </DragDropContext>
-
       <TaskModal
         task={selectedTask}
         open={!!selectedTask}
         onOpenChange={(open) => !open && setSelectedTask(null)}
         onUpdate={handleUpdateTask}
       />
-
       <CreateTaskDialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen} onCreateTask={handleCreateTask} />
-    </div>
-  )
+</div>
+)
 }
